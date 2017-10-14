@@ -33,65 +33,64 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    ArrayList<newsitem> newsFeed=new ArrayList<>();
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Button button=(Button) findViewById(R.id.button);
-        RequestQueue queue = Volley.newRequestQueue(this);
+	ArrayAdapter<newsitem> adapter;
 
-        JsonObjectRequest myReq = new JsonObjectRequest(Request.Method.GET,
-                " https://newsapi.org/v1/articles?source=bbc-news&sortBy=top&apiKey=213bf478145b4af28f3fec5c8f5dec94",
-                null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray newsItems = response.getJSONArray("articles");
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		Button button = (Button) findViewById(R.id.button);
+		RequestQueue queue = Volley.newRequestQueue(this);
 
-                            for (int i = 0; i < newsItems.length(); i++) {
-                                JSONObject temp = newsItems.getJSONObject(i);
+		JsonObjectRequest myReq = new JsonObjectRequest(Request.Method.GET,
+				"https://newsapi.org/v1/articles?source=bbc-news&sortBy=top&apiKey=213bf478145b4af28f3fec5c8f5dec94",
+				null,
+				new Response.Listener<JSONObject>() {
+					@Override
+					public void onResponse(JSONObject response) {
+						try {
+							JSONArray newsItems = response.getJSONArray("articles");
 
-                                String title = temp.getString("title");
-                                String image = temp.getString("urlToImage");
-                                String content = temp.getString("description");
-                                String time = temp.getString("publishedAt");
+							for (int i = 0; i < newsItems.length(); i++) {
+								JSONObject temp = newsItems.getJSONObject(i);
 
-
-                                String link = temp.getString("url");
-
-                                newsFeed.add(new newsitem(title, content, time, link, image));
-
-                            }
-                        } catch(JSONException e) {
-                            Log.i("myTag", e.toString());
-                        }
-                    }
-
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.i("myTag", error.toString());
-                    }
-                });
+								String title = temp.getString("title");
+								String image = temp.getString("urlToImage");
+								String content = temp.getString("description");
+								String time = temp.getString("publishedAt");
 
 
-        myReq.setRetryPolicy(new DefaultRetryPolicy(
-                10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-        ));
+								String link = temp.getString("url");
 
-        queue.add(myReq);
+								adapter.add(new newsitem(title, content, time, link, image));
+								adapter.notifyDataSetChanged();
+							}
+						} catch (JSONException e) {
+							Log.i("myTag", e.toString());
+						}
+					}
+
+				},
+				new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Log.i("myTag", error.toString());
+					}
+				});
 
 
+		myReq.setRetryPolicy(new DefaultRetryPolicy(
+				10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+		));
 
-        ArrayAdapter<newsitem> adapter=new customAdapter(this,R.layout.my_layout,newsFeed);
-        ListView listView=(ListView) findViewById(R.id.newsItems);
-        listView.setAdapter(adapter);
-    }
+		queue.add(myReq);
 
 
+		adapter = new customAdapter(this, R.layout.my_layout);
+		ListView listView = (ListView) findViewById(R.id.newsItems);
+		listView.setAdapter(adapter);
+	}
 
-    }
+
+}
 
