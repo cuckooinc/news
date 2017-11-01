@@ -7,15 +7,8 @@
     android:padding="10dp"
 
     tools:context="com.example.user.news.MainActivity">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="News Feed"
-        android:textSize="25sp"
-        android:textAlignment="center"
-        android:id="@+id/logo"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+
+
 
     <ListView
         android:layout_width="wrap_content"

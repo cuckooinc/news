@@ -11,6 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -19,6 +22,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,16 +49,13 @@ public class Main2Activity extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
 
 
-
         Button button = (Button) findViewById(R.id.button);
         ListView lv;
         Context context;
 
         ArrayList prgmName;
-        int[] Imageslist= {R.drawable.sports, R.drawable.lifestyle, R.drawable.money};
+        int[] Imageslist = {R.drawable.sports, R.drawable.lifestyle, R.drawable.money};
         String[] section = {"Sports", "lifestyle", "money"};
-
-
 
 
         lv = (ListView) findViewById(R.id.newsItems);
@@ -87,10 +88,13 @@ public class Main2Activity extends AppCompatActivity {
 
             }
         });
+
     }
 
 
-        class CustomAdapter extends BaseAdapter {
+
+
+    class CustomAdapter extends BaseAdapter {
 
         Context context;
         String countryList[];
@@ -123,8 +127,10 @@ public class Main2Activity extends AppCompatActivity {
         public View getView(int i, View view, ViewGroup viewGroup) {
             view = inflter.inflate(R.layout.my_layout, null);
             TextView country = (TextView) view.findViewById(R.id.heading);
+            TextView desc=(TextView) view.findViewById(R.id.desc);
             ImageView icon = (ImageView) view.findViewById(R.id.image);
             country.setText(countryList[i]);
+            desc.setText("");
             icon.setImageResource(flags[i]);
             return view;
         }

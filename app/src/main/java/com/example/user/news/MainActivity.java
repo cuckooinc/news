@@ -1,5 +1,6 @@
 package com.example.user.news;
 
+import android.app.SearchManager;
 import android.app.VoiceInteractor;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -17,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,7 +47,8 @@ import static android.media.CamcorderProfile.get;
 public class MainActivity extends AppCompatActivity {
 
 	ArrayAdapter<newsitem> adapter;
-
+	SearchView editsearch;
+	MenuItem searchMenuItem;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -97,8 +103,10 @@ public class MainActivity extends AppCompatActivity {
 		adapter = new customAdapter(this, R.layout.my_layout);
 		final ListView listView = (ListView) findViewById(R.id.newsItems);
 		listView.setAdapter(adapter);
+
         addClickListener();
         }
+
 
     private void addClickListener() {
         final ListView newsItems = (ListView) (findViewById(R.id.newsItems));
@@ -113,6 +121,33 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu_search, menu);
+		MenuItem item = menu.findItem(R.id.menuSearch);
+		SearchView searchView = (SearchView)item.getActionView();
+
+		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+			@Override
+			public boolean onQueryTextSubmit(String query) {
+				return false;
+			}
+
+			@Override
+			public boolean onQueryTextChange(String newText) {
+				adapter.getFilter().filter(newText);
+
+				return false;
+			}
+		});
+
+
+		return super.onCreateOptionsMenu(menu);
+	}
+
+
+
 	  class customAdapter extends ArrayAdapter<newsitem> {
 
 		public customAdapter(Context context, int textViewResourceId) {
@@ -147,4 +182,3 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 }
-
