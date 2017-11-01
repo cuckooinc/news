@@ -135,8 +135,10 @@ public class MainActivity extends AppCompatActivity {
 			TextView desc = (TextView) v.findViewById(R.id.desc);
 
 			textView.setText(getItem(position).getNewsHeading());
+			textView.setTextColor(getColor(android.R.color.white));
 			//imageView.setImageResource(R.mipmap.ic_launcher);
 			desc.setText((getItem(position).getNewsDesc()));
+			desc.setTextColor(getColor(android.R.color.white));
 
 			Picasso.with(MainActivity.this)
 					.load(getItem(position).getImageURL()).into(imageView);
