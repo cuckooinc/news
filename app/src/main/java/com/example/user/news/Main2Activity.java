@@ -48,6 +48,11 @@ public class Main2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
+        getSupportActionBar().setTitle(null);
+
 
         Button button = (Button) findViewById(R.id.button);
         ListView lv;
