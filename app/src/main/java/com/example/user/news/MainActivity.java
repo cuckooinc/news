@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 	ArrayAdapter<newsitem> adapter;
 	SearchView editsearch;
 	MenuItem searchMenuItem;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -63,6 +65,13 @@ public class MainActivity extends AppCompatActivity {
 
 		Button button = (Button) findViewById(R.id.button);
 		RequestQueue queue = Volley.newRequestQueue(this);
+
+		adapter = new customAdapter(this, R.layout.my_layout);
+		final ListView listView = (ListView) findViewById(R.id.newsItems);
+		listView.setAdapter(adapter);
+
+		addClickListener();
+
 
 		JsonObjectRequest myReq = new JsonObjectRequest(Request.Method.GET,
 				"https://newsapi.org/v1/articles?source=bbc-news&sortBy=top&apiKey=213bf478145b4af28f3fec5c8f5dec94",
@@ -106,35 +115,29 @@ public class MainActivity extends AppCompatActivity {
 		));
 
 		queue.add(myReq);
+	}
 
 
-		adapter = new customAdapter(this, R.layout.my_layout);
-		final ListView listView = (ListView) findViewById(R.id.newsItems);
-		listView.setAdapter(adapter);
+	private void addClickListener() {
+		final ListView newsItems = (ListView) (findViewById(R.id.newsItems));
+		newsItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Toast.makeText(MainActivity.this, "I'm here at least...!", Toast.LENGTH_SHORT).show();
+				newsitem currentItem = (newsitem) adapter.getItem(position);
+				Intent i = new Intent(Intent.ACTION_VIEW);
+				i.setData(Uri.parse(currentItem.getUrl()));
+				startActivity(i);
+			}
+		});
+	}
 
-        addClickListener();
-        }
-
-
-    private void addClickListener() {
-        final ListView newsItems = (ListView) (findViewById(R.id.newsItems));
-        newsItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "I'm here at least...!", Toast.LENGTH_SHORT).show();
-                newsitem currentItem =(newsitem) adapter.getItem(position);
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(currentItem.getUrl()));
-                startActivity(i);
-            }
-        });
-    }
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.menu_search, menu);
 		MenuItem item = menu.findItem(R.id.menuSearch);
-		SearchView searchView = (SearchView)item.getActionView();
+		SearchView searchView = (SearchView) item.getActionView();
 
 		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 			@Override
@@ -155,8 +158,9 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 
+	class customAdapter extends ArrayAdapter<newsitem> {
 
-	  class customAdapter extends ArrayAdapter<newsitem> {
+		private ArrayList<newsitem> data = new ArrayList<>();
 
 		public customAdapter(Context context, int textViewResourceId) {
 			super(context, textViewResourceId, new ArrayList<newsitem>());
@@ -187,6 +191,70 @@ public class MainActivity extends AppCompatActivity {
 					.load(getItem(position).getImageURL()).into(imageView);
 			return v;
 
+		}
+
+		@Override
+		public void add(newsitem object) {
+			super.add(object);
+
+			data.add(object);
+
+			notifyDataSetChanged();
+		}
+
+		@Override
+		public Filter getFilter() {
+			return new F();
+		}
+
+		private class F extends Filter {
+
+			@Override
+			protected FilterResults performFiltering(CharSequence constraint) {
+				// Create a FilterResults object
+				FilterResults results = new FilterResults();
+
+				// If the constraint (search string/pattern) is null
+				// or its length is 0, i.e., its empty then
+				// we just set the `values` property to the
+				// original contacts list which contains all of them
+				if (constraint == null || constraint.length() == 0) {
+					results.values = new ArrayList(data);
+					results.count = data.size();
+				} else {
+					// Some search copnstraint has been passed
+					// so let's filter accordingly
+					ArrayList<newsitem> filteredContacts = new ArrayList<>();
+
+					// We'll go through all the contacts and see
+					// if they contain the supplied string
+					for (newsitem c : data) {
+						if (c.getNewsHeading().toLowerCase().contains(constraint.toString().toLowerCase()) || c.getNewsDesc().toLowerCase().contains(constraint.toString().toLowerCase())) {
+							// if `contains` == true then add it
+							// to our filtered list
+							filteredContacts.add(c);
+						}
+					}
+
+					// Finally set the filtered values and size/count
+					results.values = filteredContacts;
+					results.count = filteredContacts.size();
+				}
+
+				// Return our FilterResults object
+				return results;
+			}
+
+			@Override
+			protected void publishResults(CharSequence constraint, FilterResults results) {
+				try {
+					clear();
+					addAll((ArrayList<newsitem>) results.values);
+
+					notifyDataSetChanged();
+				} catch (Exception e) {
+				}
+			}
 		}
 	}
 }

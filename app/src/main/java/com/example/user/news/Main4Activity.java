@@ -5,15 +5,21 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +46,12 @@ public class Main4Activity extends AppCompatActivity {
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
+
+            Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+            setSupportActionBar(myToolbar);
+
+            getSupportActionBar().setTitle(null);
+
 
             RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -93,6 +105,31 @@ public class Main4Activity extends AppCompatActivity {
             addClickListener();
         }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_search, menu);
+        MenuItem item = menu.findItem(R.id.menuSearch);
+        SearchView searchView = (SearchView) item.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+
+                return false;
+            }
+        });
+
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
     private void addClickListener() {
         final ListView newsItems = (ListView) (findViewById(R.id.newsItems));
         newsItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -107,6 +144,7 @@ public class Main4Activity extends AppCompatActivity {
         });
     }
     class customAdapter extends ArrayAdapter<newsitem> {
+        private ArrayList<newsitem> data = new ArrayList<>();
 
         public customAdapter(Context context, int textViewResourceId) {
             super(context, textViewResourceId, new ArrayList<newsitem>());
@@ -135,6 +173,69 @@ public class Main4Activity extends AppCompatActivity {
                     .load(getItem(position).getImageURL()).into(imageView);
             return v;
 
+        }
+        @Override
+        public void add(newsitem object) {
+            super.add(object);
+
+            data.add(object);
+
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public Filter getFilter() {
+            return new F();
+        }
+
+        private class F extends Filter {
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                // Create a FilterResults object
+                FilterResults results = new FilterResults();
+
+                // If the constraint (search string/pattern) is null
+                // or its length is 0, i.e., its empty then
+                // we just set the `values` property to the
+                // original contacts list which contains all of them
+                if (constraint == null || constraint.length() == 0) {
+                    results.values = new ArrayList(data);
+                    results.count = data.size();
+                } else {
+                    // Some search copnstraint has been passed
+                    // so let's filter accordingly
+                    ArrayList<newsitem> filteredContacts = new ArrayList<>();
+
+                    // We'll go through all the contacts and see
+                    // if they contain the supplied string
+                    for (newsitem c : data) {
+                        if (c.getNewsHeading().toLowerCase().contains(constraint.toString().toLowerCase()) || c.getNewsDesc().toLowerCase().contains(constraint.toString().toLowerCase())) {
+                            // if `contains` == true then add it
+                            // to our filtered list
+                            filteredContacts.add(c);
+                        }
+                    }
+
+                    // Finally set the filtered values and size/count
+                    results.values = filteredContacts;
+                    results.count = filteredContacts.size();
+                }
+
+                // Return our FilterResults object
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                try {
+                    clear();
+                    addAll((ArrayList<newsitem>) results.values);
+
+                    notifyDataSetChanged();
+                } catch (Exception e) {
+                }
+            }
         }
     }
 }
