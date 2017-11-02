@@ -21,14 +21,18 @@
             android:name=".Main2Activity"
             android:label="@string/title_activity_main2"
             android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+        <activity android:name=".Main3Activity" />
+        <activity android:name=".Main4Activity"></activity>
+        <activity android:name=".SplashActivity" android:theme="@style/splashTheme">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Main3Activity" />
-        <activity android:name=".Main4Activity"></activity>
     </application>
 
 </manifest>
